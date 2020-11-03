@@ -1,0 +1,1750 @@
+openapi: 3.0.1
+info:
+  title: Extract Public API
+  description: Public API definition for Extract.
+  version: 4.0.0-SNAPSHOT
+servers:
+  - url: 'http://localhost:8080'
+    description: Generated server url
+security:
+  - Bearer: []
+tags:
+  - name: process
+    description: Extract processing pipeline operations
+paths:
+  /imatchpipelineexecutor/api/process:
+    post:
+      tags:
+      - process
+      summary: Start the extract processing pipeline.
+      description: Start processing a provided document through the extraction pipeline.
+        The system will start to orchestrate the asynchronous extraction. The provided
+        process request allows some pipeline toggles.
+      operationId: process
+      parameters:
+      - name: filename
+        in: query
+        description: Custom filename for the file. It's necessary for files with non
+          ascii characters in the name (like cyrillic)
+        required: false
+        schema:
+          type: string
+        example: someFile.pdf
+      - name: session
+        in: query
+        description: Identifier of the user session
+        required: true
+        schema:
+          type: string
+        example: userSession123
+      - name: operation
+        in: query
+        description: Consolidation operation id
+        required: false
+        schema:
+          type: string
+      requestBody:
+        description: File to be processed
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                processDetails:
+                  $ref: '#/components/schemas/ProcessRequest'
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        400:
+          description: The uploaded document is not valid
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        405:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        412:
+          description: There are some missing configurations
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        406:
+          description: There are violations in the process
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        500:
+          description: Callback error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        417:
+          description: User group not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        403:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        401:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        200:
+          description: The process has started correctly.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentifierResponse'
+  /imatchresourcemanager/api/resource/{identifier}:
+    get:
+      tags:
+      - resource
+      summary: Get resource by id
+      description: Get resource by id
+      operationId: get_1
+      parameters:
+      - name: identifier
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        401:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        409:
+          description: The resource already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        500:
+          description: There was some unexpected exception
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        400:
+          description: An input parameter is not valid
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        404:
+          description: The resource couldn't be found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        403:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        405:
+          description: The endpoint exists but this method is not allowed
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        200:
+          description: The request was succesful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+    delete:
+      tags:
+      - resource
+      summary: Delete resource by id
+      description: Delete resource by id
+      operationId: deleteResource
+      parameters:
+      - name: identifier
+        in: path
+        description: Resource identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        401:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        409:
+          description: The resource already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        500:
+          description: There was some unexpected exception
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        400:
+          description: An input parameter is not valid
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        404:
+          description: The resource couldn't be found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        403:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        405:
+          description: The endpoint exists but this method is not allowed
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        200:
+          description: The resource was deleted successfully
+  /imatchresourcemanager/api/resource/update:
+    put:
+      tags:
+      - resource
+      summary: Update a resource
+      description: Update a resource
+      operationId: update
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/Resource'
+      responses:
+        401:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        409:
+          description: The resource already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        500:
+          description: There was some unexpected exception
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        400:
+          description: An input parameter is not valid
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        404:
+          description: The resource couldn't be found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        403:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        405:
+          description: The endpoint exists but this method is not allowed
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        200:
+          description: The resource was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+  /imatchresourcemanager/api/resource/dto/{identifier}:
+    get:
+      tags:
+      - resource
+      summary: Get resource by id (dto)
+      description: Get resource by id (dto)
+      operationId: get
+      parameters:
+      - name: identifier
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        401:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        409:
+          description: The resource already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        500:
+          description: There was some unexpected exception
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        400:
+          description: An input parameter is not valid
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        404:
+          description: The resource couldn't be found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        403:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        405:
+          description: The endpoint exists but this method is not allowed
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        200:
+          description: The request was succesful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDTO'
+  /imatchresourcemanager/api/resource/dto/update:
+    put:
+      tags:
+      - resource
+      summary: Update a resource (dto)
+      description: Update a resource (dto)
+      operationId: updateDTO
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/ResourceDTO'
+      responses:
+        401:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        409:
+          description: The resource already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        500:
+          description: There was some unexpected exception
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        400:
+          description: An input parameter is not valid
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        404:
+          description: The resource couldn't be found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        403:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        405:
+          description: The endpoint exists but this method is not allowed
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        200:
+          description: The resource was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDTO'
+  /imatchlicense/api/documents:
+    get:
+      tags:
+        - license
+      operationId: getAllDocuments
+      parameters:
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Pageable'
+      responses:
+        405:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/Subtype'
+                - $ref: '#/components/schemas/ErrorVM'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Type'
+        200:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+  /api/callback/{callbackType}:
+    post:
+      tags:
+      - callback
+      summary: Runs a callback request to the provided url.
+      description: 'After processing is done, we might want to send the resulting
+        Resource entity to a third party serevice, to inform that the processing has
+        been completed. This endpoint does this callback using different strategies
+        described in the callbackType parameter. '
+      operationId: apiCallbackCallbackTypePost
+      parameters:
+      - name: url
+        in: query
+        description: where the callback request is sent
+        required: true
+        schema:
+          type: string
+      - name: callbackType
+        in: path
+        description: "Callback strategy. There are several types:\n * **SimpleCallback**:\
+          \ Performs a simple POST request to the provided url with the Resource as\
+          \ body.\n * **LightweightGatewayCallback**: Same as SimpleCallback but with\
+          \ an authentication step, getting a JWT token and sending it with the resource. "
+        required: true
+        schema:
+          type: string
+          enum:
+          - SimpleCallback
+          - LightweightGatewayCallback
+      requestBody:
+        description: the Resource object to be sent to the url
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resource'
+        required: true
+      responses:
+        500:
+          description: There was some unexpected exception
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        400:
+          description: A required parameter is missing
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        405:
+          description: The endpoint exists but this method is not allowed
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        403:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        401:
+          description: You are not allowed to run this service
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorIM'
+        200:
+          description: The callback was sent correctly
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallbackResult'
+
+components:
+  schemas:
+    ProcessRequest:
+      type: object
+      properties:
+        docType:
+          type: string
+          description: Document type as defined in the configuration.
+          example: Identifiers
+        subType:
+          type: string
+          description: Document subtype as defined in the configuration.
+          example: Passport
+        countryName:
+          type: string
+          description: Document country as defined in the configuration.
+          example: Mexico
+        languageCode:
+          type: string
+          description: Document language as defined in the configuration.
+          example: SPANISH
+        uploadId:
+          type: string
+          description: Identifier of a group of document processings. Used for upload
+            status updates and stoping them in group.
+          example: someUploadId
+        timestamp:
+          type: integer
+          description: Timestamp of the process request. Used only if uploadId is
+            not provided
+          format: int64
+          deprecated: true
+        mobile:
+          type: boolean
+          description: Flag to indicate that the document to be processed is a photograph
+            rather than a scan. If this flag is on then the image verification (dpi
+            and noise) is not applied but always consumes a license.
+        training:
+          type: boolean
+          description: Flag to indicate that the document is for training. If this
+            flag is on then the nlp extraction is not executed.
+        cleanser:
+          type: boolean
+          description: Flag to enable text cleansing on training mode. Has no effect
+            when training is false.
+        layoutTraining:
+          type: boolean
+          description: Flag to enable layout extraction training.
+        normalize:
+          type: boolean
+          description: Flag to enable normalization of the extracted data.
+        keyValueTraining:
+          type: boolean
+          description: Flag to enable key-value extraction training.
+        externalService:
+          $ref: '#/components/schemas/Parameters'
+        callback:
+          $ref: '#/components/schemas/Callback'
+        signature:
+          type: boolean
+          description: Flag to enable signature extraction.
+        checkbox:
+          type: boolean
+          description: Flag to enable checkbox extraction.
+      description: Pipeline processing request params.
+    Parameters:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        params:
+          type: object
+          additionalProperties:
+            type: string
+      description: External service params, used to describe an external service to
+        retrieve he file to process from.
+      deprecated: true
+    Callback:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Url where the processed resource should be sent as callback
+        executor:
+          type: string
+          description: |-
+            Type of callback executor. There are the following options:
+             * SimpleCallback: make a POST request to the provided url with the resource as body
+             * LightweightGatewayCallback: same as the simple callback but with an authentication header containing a JWT token previously obtained from a Basic Auth request defined in configuration.
+          enum:
+          - SimpleCallback
+          - LightweightGatewayCallback
+      description: Callback details to actively send the resource after processing.
+        Setting them enables the callback feature.
+    ErrorIM:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          description: Timestamp when the error occured
+          format: date-time
+        errorCode:
+          pattern: ^\d{4}-\d{3}$
+          type: string
+          description: |-
+            Error code. The error codes are formed with the following structure:
+            <service code>-<specific error code>
+            For example: 8002-404 means there was an error in pipeline executor (8002) caused by an resource manager not found (404)
+          example: 8002-404
+        description:
+          type: string
+          description: Description of the error occured
+          example: Resource manager service not found
+        additionalData:
+          type: string
+          description: Additional information about the error. If no other information
+            is explicitly provided, it may contain a stack trace.
+          example: The resource manager returned a 503 error
+    IdentifierResponse:
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: Identifier of the resource created/updated
+      description: Simple response with the identifier of the resource created/updated
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Resource id. It's automatically generated in resource manager
+            module when generated for the first time
+          format: uuid
+        information:
+          $ref: '#/components/schemas/Information'
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sections'
+        locations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationData'
+        text:
+          type: string
+          description: Importer file uuid for the extracted text (cleansed if cleanser
+            is enabled). It's automatically generated by the importer module when
+            the system uploads the extracted text file
+          format: uuid
+        originalText:
+          type: string
+          description: Importer file uuid for the originally extracted text (before
+            cleanser). It's automatically generated by the importer module when the
+            system uploads the extracted text file
+          format: uuid
+        transformerOcrXml:
+          type: string
+          description: (Deprecated on 4.0.0) Old ocr xml field that is used no more.
+            It's automatically generated by the importer module when the system uploads
+            the extracted text file
+          format: uuid
+          deprecated: true
+        ocrXml:
+          type: string
+          description: Importer file uuid for the originally ocr xml. That XML can
+            be the abbyy generated one or an alto XML. It's automatically generated
+            by the importer module when the system uploads the extracted text file
+          format: uuid
+        gethOCR:
+          type: string
+          description: Importer file uuid for the tesseract OCR xml. It's automatically
+            generated by the importer module when the system uploads the extracted
+            text file
+          format: uuid
+        gateXml:
+          type: string
+          description: Importer file uuid for the gate xml. It's automatically generated
+            by the importer module when the system uploads the extracted text file
+          format: uuid
+        ocrCleansedTxtRef:
+          type: string
+          description: Importer file uuid for the cleansed text. It's automatically
+            generated by the importer module when the system uploads the extracted
+            text file
+          format: uuid
+        ocrCleanserSuggestionsRef:
+          type: string
+          description: (Deprecated on 4.0.0) Importer file uuid for ocrCleanserSuggestionsRef.
+            It's automatically generated by the importer module when the system uploads
+            the extracted text file
+          format: uuid
+          deprecated: true
+        originalTokens:
+          type: string
+          description: |-
+            Original text for tokens corrected by cleanser.
+             * Key: Token offset
+             * Value: Original texts before applying the corections.
+             Stored as a serialized map encoded in base64
+          format: base64
+          example: eyIyMDA2NSI6IkZSQUdPU08iLCIxMTMzMyI6IkZSQUdPU08iLCIyMzkxMCI6IkZSQUdPU08iLCIyNTkyOCI6IkZSQUdPU08iLCI4NjgzIjoiRlJBR09TTyIsIjI4MTExIjoiRlJBR09TTyIsIjE2NDgiOiJGUkFHT1NPIiwiMzYwMSI6IkZSQUdPU08iLCI2NDUyIjoiRlJBR09TTyIsIjEzNDkyIjoiRlJBR09TTyIsIjg2IjoiRlJBR09TTyIsIjM5NzAyIjoiRlJBR09TTyIsIjM3ODQ4IjoiRlJBR09TTyIsIjQyMjY0IjoiRlJBR09TTyIsIjIxOTQ2IjoiRlJBR09TTyIsIjQ0MTI3IjoiRlJBR09TTyJ9
+        status:
+          type: integer
+          description: |-
+            Informs wether the processing went all right or there was an error.
+            Valid values are:
+            * 0 = Incorrect - There was a processing error
+            * 1 = Correct - Processing finished successfully
+            * 2 = Cancelled
+          format: int32
+          example: 0
+        errorStatusUpload:
+          type: integer
+          description: StatusUpload when an error occured. Possible values are the
+            same as defined in the statusUpload field specification
+          format: int32
+          nullable: true
+          example: 2
+        operation:
+          type: string
+          description: Operation id. An operation defines a set of document to be
+            consolidated after all of them finished processing.
+        validationDate:
+          type: string
+          description: Timestamp with the date the resource was validated
+          format: date-time
+          nullable: true
+        error:
+          $ref: '#/components/schemas/ResultError'
+        textPlain:
+          type: object
+          additionalProperties:
+            type: string
+            description: |-
+              Contains the plain text to allow searching over it using imatch search service.
+              In order to allow different language contents, the field has a structure of key:value pairs.
+              * key: language code
+              * value: plain text content
+
+              Example: {"ENGLISH": "This is the extracted text in english."}
+          description: |-
+            Contains the plain text to allow searching over it using imatch search service.
+            In order to allow different language contents, the field has a structure of key:value pairs.
+            * key: language code
+            * value: plain text content
+
+            Example: {"ENGLISH": "This is the extracted text in english."}
+        consolidations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DatapointConsolidationResult'
+        warningCode:
+          type: integer
+          description: Warning code if there is something to warn about. Default is
+            -1 meaning there is no warning
+          format: int32
+          default: -1
+        warningMessage:
+          type: string
+          description: Waring message matching the warning code
+          nullable: true
+        classified:
+          type: boolean
+          description: Flag to indicate if the document was classified or not
+        normalizationError:
+          type: string
+          description: Description of the normalization error if any
+        status_upload:
+          type: integer
+          description: |-
+            Status of the processing
+            Valid values are tthe following:
+            * 0: Uploading - The document has been received and is being prepared for processing
+            * 1: Saving file - The document is being stored
+            * 2: OCR - OCR process
+            * 3: Saving transcription - OCR extracted text is being stored
+            * 4: Saving OCR XML - OCR xml is being stored
+            * 5: (Deprecated) Saving transformed OCR XML - OCR transformed xml is being stored
+            * 6: Saving transformed file - OCR transformed pdf is being stored
+            * 7: NLP process - NLP datapoint straction process
+            * 8: Merge OCR - Locations extraction
+            * 9: Calculating confidence - Extracted datapoints confidence value calculation
+            * 10: Cleanser process - Text cleansing process
+            * 11: Classifying - Document classification
+            * 12: Signature Extraction
+            * 13: Normalizing
+            * 14: Vertical code detection - Detection of verttical text
+            * 999: Finished - The processing has ended eithter successfully or due to errors
+          format: int32
+          example: 999
+        status_corpus:
+          type: integer
+          description: |-
+            Status of the corpus edition
+            Valid values are the following:
+            * 0: Not edited - The document has not been modified
+            * 1: In progress - The document has been modified and saved as draft
+            * 2: Validated - The document has been modified and validated
+          format: int32
+          example: 0
+      description: The main resource that contains all the information about the extraction
+        process
+    ResultError:
+      type: object
+      properties:
+        errorCode:
+          pattern: ^\d{4}-\d{3}$
+          type: string
+          description: |-
+            Error code. The error codes are formed with the following structure:
+            <service code>-<specific error code>
+            For example: 8002-404 means there was an error in pipeline executor (8002) caused by an resource manager not found (404)
+          example: 8002-404
+        errorCodeDescription:
+          type: string
+          description: Description of the error occured
+          deprecated: true
+        errorDesc:
+          type: string
+          description: Description of the error occured
+          example: Resource manager service not found
+        developerMessage:
+          type: string
+          description: Additional information about the error. May contain stack traces
+            if no other information is explicitly provided
+          example: The resource manager returned a 503 error
+          deprecated: true
+        moreInfo:
+          type: string
+          description: Additional information about the error. May contain stack traces
+            if no other information is explicitly provided
+          example: The resource manager returned a 503 error
+      description: Information about an error if any occured
+      nullable: true
+    Sections:
+      type: object
+      properties:
+        label:
+          type: string
+          description: Unique id of the section to allow diferentiation beetween sections
+            with the same label
+          format: uuid
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+        id:
+          type: string
+          description: Unique id of the section to allow diferentiation beetween sections
+            with the same label
+          format: uuid
+      description: Recursive structure that stores the resource datapoints
+    Validation:
+      type: object
+      properties:
+        validationType:
+          type: string
+          description: 'What kind of OCR validation was used in the processing of
+            the resource: "Text": The document was a txt and no validation is needed."Text
+            Pdf": The document was a text pdf and only suspiciousness may apply."Image":
+            The document was an image or a pdf with embedded images. Dpi and suspiciousness
+            validation may apply.'
+          example: Text Pdf
+        valid:
+          type: boolean
+          description: Boolean flag to indicate that the resource is validated
+          example: true
+          default: false
+        confidence:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Value of confidence that the resource datapoints are correct.
+            From 0 to 1
+          format: double
+          example: 0.9
+        slaValue:
+          type: number
+          description: Value of the calculated confidence
+          format: float
+          deprecated: true
+        slaThreshold:
+          type: number
+          description: Value of the contract confidence sla
+          format: float
+          deprecated: true
+        supervised:
+          type: boolean
+          description: Boolean flag to indicate that the document is supervised (aka.
+            not structured)
+        slaCompliant:
+          type: boolean
+          description: Boolean flag to indicate thatt the document reaches the contract
+            defined sla threshold
+          example: true
+        slaSupervisedExplicitDatapoint:
+          type: number
+          description: (Deprecated on 4.0.0)
+          format: float
+          deprecated: true
+        slaSupervisedInferedDatapoint:
+          type: number
+          description: (Deprecated on 4.0.0)
+          format: float
+          deprecated: true
+        slaLowerThreshold:
+          type: number
+          description: (Deprecated on 4.0.0)
+          format: float
+          deprecated: true
+        slaNotSupervisedDocument:
+          type: number
+          description: (Deprecated on 4.0.0)
+          format: float
+          deprecated: true
+        slaNotSupervisedDatapoint:
+          type: number
+          description: (Deprecated on 4.0.0)
+          format: float
+          deprecated: true
+        dpi:
+          minimum: 0
+          type: integer
+          description: Dots Per Inch. A measure of the resolution of the document
+            if it contains images
+          format: int32
+          example: 260
+        pages:
+          minimum: 0
+          type: integer
+          description: Number of pages in the document
+          format: int32
+          example: 5
+        rejectReason:
+          type: string
+          description: |-
+            Reason why the document was rejected by OCR
+            * DPI - calculated dpi value is lower than the threshold
+            * SUSP - calculated suspicious rate value is lower than the threshold
+          nullable: true
+          example: DPI
+        supervision:
+          type: string
+          description: |-
+            Status of the supervision of a resource.
+            * V = Validated
+            * E = Edited
+          nullable: true
+          example: null
+          default: null
+        mobile:
+          type: boolean
+          description: Boolean flag to indicate that the doocument is a photograph
+        suspicious_rate:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Percentage of suspicius characters in the extracted text. A
+            suspicious character is a character that has a low confidence to have
+            been correctly extracted by OCR
+          format: float
+          example: 0.48
+      description: Metadata about the OCR validation of the resource
+    Information:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of the processed resource.
+          example: SANMX
+        subtype:
+          type: string
+          description: Subtype of the processed resource.
+          example: INE
+        format:
+          type: string
+          description: Mime type of the processed document
+          example: application/pdf
+        language:
+          type: string
+          description: Language code of the document
+          example: SPANSIH
+        country:
+          type: string
+          description: Country of the processed document
+          example: Mexico
+        size:
+          type: integer
+          description: Size of the uploaded document in bytes
+          format: int64
+          example: 1639288
+        textExtractor:
+          type: string
+          description: |-
+            OCR text extractor strategy:
+            * TEXT: The document was a plain text document
+            * PDFBOXEXTRACTOR: The text was extracted from a text pdf file using pdfbox
+            * ABBYY: The text was extracted using abbyy ocr
+            * COMBINED: The document is a text pdf but was processed using abbyy/tesseract ocr
+            * TESSERACT: The text was extracted using tesseract ocr
+          example: ABBYY
+          enum:
+          - TEXT
+          - PDFBOXEXTRACTOR
+          - ABBYY
+          - COMBINED
+          - TESSERACT
+        validation:
+          $ref: '#/components/schemas/Validation'
+        edition:
+          $ref: '#/components/schemas/Edition'
+        processor:
+          $ref: '#/components/schemas/Processor'
+        path:
+          type: string
+          description: Importer file uuid for the original document. It's automatically
+            generated by the importer module when the system uploads the extracted
+            text file
+          format: uuid
+        licenseId:
+          type: integer
+          description: Id for the related license for that type of document and client
+          format: int64
+          example: 1
+          deprecated: true
+        quoteId:
+          type: integer
+          description: Id for the related quote for that type of document and client
+          format: int64
+          example: 1
+          deprecated: true
+        fileName:
+          type: string
+          description: Name of the original document uploaded by client
+          example: ine.pdf
+        md5Hash:
+          type: string
+          description: Md5 hash of the whole document used to identify it
+          example: cbdf2fa13c595cc3a2d94b81785377e7
+        uploadDate:
+          type: integer
+          description: Timestamp when the document was uploaded
+          format: int64
+          example: 1572957415024
+        creator:
+          type: string
+          description: Username identifying the user that uploaded the document
+          example: someuser
+        organizationUuid:
+          type: string
+          description: UUID of the organization the user belongs at the time of the
+            upload
+          format: uuid
+        uploadId:
+          type: string
+          description: Identifier of a set of documents that were uploaded at the
+            same time. Mainly used by UI and status updates
+          example: Documents_11/05/2019-13:36:54
+        classifier:
+          type: boolean
+          description: Flag to indicate if the document was classified or not
+        corpus:
+          type: boolean
+          description: Wether the resource is corpus (and therefore stored in the
+            corpus index) or a normally processed resource
+        transformerOCRFile:
+          type: string
+          description: Importer file uuid for the ocr transformed document. It's automatically
+            generated by the importer module when the system uploads the extracted
+            text file
+          format: uuid
+      description: General metadata about the resource
+    Location:
+      type: object
+      properties:
+        start:
+          type: integer
+          description: |-
+            Start of the annotation expressed in milliseconds or characters. For Audio and Txt locations.
+            In the audio location it represents the milliseconds from the start of the audio/video.
+            In the text location it represents the number of characters from the start.
+          format: int64
+          example: 19576
+        end:
+          type: integer
+          description: |-
+            End of the annotation expressed in milliseconds or characters. For Audio and Txt locations.
+            In the audio location it represents the milliseconds from the start of the audio/video.
+            In the text location it represents the number of characters from the start.
+          format: int64
+          example: 21852
+        positionImg:
+          uniqueItems: true
+          type: array
+          description: For Image locations. The array of positions specialized in
+            the representation of the location used with visual annotations.
+          items:
+            $ref: '#/components/schemas/PositionImg'
+      description: 'The object location that belongs to the LocationType: this object
+        has the information about the offsets of the annotations.'
+    LocationData:
+      type: object
+      properties:
+        locationId:
+          pattern: ^-?\d+$
+          type: string
+          description: An ID to link with the attribute (Built in this way because
+            the location must not be present when the data is sent to third party
+            systems)
+          example: "136"
+        locationType:
+          type: string
+          description: |-
+            The location type needed to select the location objet that fit with resource format:
+            * audio - for audios or videos
+            * txt - for text
+            * img - for Images or PDF
+            It could have more types in the future with the specific structure to represent the information.
+          example: img
+          enum:
+          - img
+          - txt
+          - audio
+        parsedText:
+          type: string
+          description: Parsed text from the location
+          example: some text
+        location:
+          $ref: '#/components/schemas/Location'
+      description: Metadata for a specific location
+    DatapointConsolidationResult:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Consolidation datapoint id to match this data with the real
+            datapoint
+          deprecated: true
+        datapointId:
+          type: string
+          description: Consolidation datapoint id to match this data with the real
+            datapoint
+        resourceId:
+          type: string
+          description: Id from the resouce that is consolidated
+          deprecated: true
+        targets:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsolidationMetadataGeneric'
+      description: Information about a specific datapoint consolidation
+    Attribute:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Similar to the section label. Human readable name of the attribute.
+          example: Name
+        description:
+          type: string
+          description: Description of the attribute.
+        path:
+          type: string
+          description: |-
+            Identifies the unique path to the attribute. It has to matches this regexp:
+            sections::label@@(?<child>[^:]+(::children::label@@[^:]+)*)::attributes::key@@(?<attr>.+)
+          example: sections::label@@PASSPORT::children::label@@Persona::attributes::key@@Nombre
+        mandatory:
+          type: boolean
+          description: Indicates if this attribute is mandatory.
+        multiple:
+          type: boolean
+          description: Indicates if this attribute is an array.
+        annotationName:
+          type: string
+          description: Name of the attribute given within the annotation phase.
+          example: NAME
+        featureName:
+          type: string
+          description: Name of the feature given within the annotation phase.
+          example: name
+        defaultValue:
+          type: string
+          description: Default value.
+          nullable: true
+        distance:
+          type: string
+          nullable: true
+        weight:
+          type: number
+          format: float
+          nullable: true
+        datatype:
+          type: string
+          description: Identifier of the datatype. UUID format.
+          format: uuid
+        langDatatype:
+          type: string
+          description: Language for the datatype.t
+          example: es
+        separatorDataType:
+          type: string
+          description: Separator for the datatype.
+          example: comma
+        unique:
+          type: boolean
+          description: Indicates if this attribute is unique.
+        originType:
+          type: string
+          description: |-
+            Valid values are:
+            - Explicit: the value is not calculated.
+            - Inferred: the value is calculated.
+        normalizedDateFormat:
+          type: string
+          description: Date format in case the datapoint is a date to normalize.
+          format: date
+        normalizedAmountSeparator:
+          type: string
+          description: Separator type in case the datapoint is a number to normalize.
+          example: dot
+        normalizeToUppercase:
+          type: boolean
+          description: Indicates if the attribute is required to uppercase when normalize.
+        normalizeToStripDashes:
+          type: boolean
+          description: Indicates if the attribute is required to normalize to strip
+            dashes when normalize.
+        reportingMatchStrategy:
+          type: string
+          description: |-
+            Valid values are:
+            - PERFECT_MATCH: In case of grammar extraction, it's needed to be a full match to extract this value.
+            - SIMILARITY: In case of grammar extraction, it isn't necessary a full match to extract the attribute.
+          enum:
+          - PERFECT_MATCH
+          - SIMILARITY
+        similarityThreshold:
+          type: number
+          description: |-
+            In case of SIMILARITY reporting match strategy, it indicates the threshold ti stablish the similarity.
+            Values between 0.0 and 1.0.
+      description: Contains the final datapoint metadata
+    Edition:
+      type: object
+      properties:
+        editor:
+          type: string
+          description: The username of the editor that made the modification of the
+            resource
+          example: someuser
+        creation:
+          type: string
+          description: The first creation of the data extracted for this resource
+          format: date-time
+        modified:
+          type: string
+          description: The last modification date applied on the resource
+          format: date-time
+        resourceVersion:
+          type: integer
+          description: (Deprecated 4.0.0 - its not used correctly) The last version
+            of the resource (each modification increase sequentially the resource
+            version.
+          format: int32
+          deprecated: true
+      description: Information about the status of the edition of the resource by
+        users
+    Processor:
+      type: object
+      properties:
+        processorType:
+          type: string
+        processorVersion:
+          type: integer
+          format: int32
+      description: (Deprecated on 4.0.0)
+      deprecated: true
+    PositionImg:
+      type: object
+      properties:
+        top:
+          type: integer
+          description: The top position of the rectangle that marks the annotations
+            expressed as pixels
+          format: int32
+          example: 123
+        left:
+          type: integer
+          description: The left position of the rectangle that marks the annotations
+            expressed as pixels
+          format: int32
+          example: 456
+        right:
+          type: integer
+          description: The right position of the rectangle that marks the annotations
+            expressed as pixels
+          format: int32
+          example: 52
+        bottom:
+          type: integer
+          description: The bottom position of the rectangle that marks the annotations
+            expressed as pixels
+          format: int32
+          example: 1245
+        pageNumber:
+          type: integer
+          description: The page number where the rectangle is located
+          format: int32
+          example: 2
+        pageWidth:
+          type: integer
+          description: The page width expressed as pixels
+          format: int32
+          example: 800
+        pageHeight:
+          type: integer
+          description: The page height expressed as pixels
+          format: int32
+          example: 1400
+      description: Details about the position inside the image document
+    ConsolidationMetadataGeneric:
+      required:
+      - country
+      - docType
+      - language
+      - path
+      - subtype
+      type: object
+      properties:
+        id:
+          type: string
+          description: Consolidatioin id
+        docType:
+          type: string
+          description: Type of the consolidated document
+          example: SANMX
+        subtype:
+          type: string
+          description: Subtype of the consolidated document
+          example: RFC
+        language:
+          type: string
+          description: Language of the consolidated document
+          example: SPANISH
+        country:
+          type: string
+          description: Country of the consolidated document
+          example: Mexico
+        identifierOfSet:
+          type: string
+          description: Identifier of the set of documents that were consolidated together
+          format: uuid
+        key:
+          type: string
+          description: Key of the consolidated attribute
+          example: Nombre
+        path:
+          type: string
+          description: |-
+            Path to the attribute in the consolidated resource.
+            It is automatically calculated by the consolidation module
+        description:
+          type: string
+          description: Description for the consolidation
+        attributeValue:
+          type: string
+          description: Value of the consolidated attribute
+          example: Pepe Perez
+        attributeIdentifier:
+          type: string
+          description: Identifier of the consolidated attribute
+          format: uuid
+        resourceIdentifier:
+          type: string
+          description: Identifier of the consolidated resource
+          format: uuid
+      description: Metadata for the datapoints the parent datapoint conoslidates with
+    AttributeDTO:
+      type: object
+      properties:
+        key:
+          type: string
+        feedbacks:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Feedback'
+        value:
+          type: string
+        consolidationIdentifier:
+          type: string
+        confidence:
+          type: number
+          format: double
+        editedBy:
+          type: string
+        editedDate:
+          type: string
+          format: date-time
+        origin:
+          $ref: '#/components/schemas/Origin'
+    InformationDTO:
+      type: object
+      properties:
+        type:
+          type: string
+        subtype:
+          type: string
+        format:
+          type: string
+        language:
+          type: string
+        country:
+          type: string
+        validation:
+          $ref: '#/components/schemas/ValidationDTO'
+        fileName:
+          type: string
+        uploadDate:
+          type: integer
+          format: int64
+        creator:
+          type: string
+        path:
+          type: string
+    ResourceDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        information:
+          $ref: '#/components/schemas/InformationDTO'
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectionsDTO'
+        status:
+          type: integer
+          format: int32
+        status_upload:
+          type: integer
+          format: int32
+        operation:
+          type: string
+        error:
+          $ref: '#/components/schemas/ResultErrorDTO'
+        consolidations:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/DatapointConsolidationResult'
+    ResultErrorDTO:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        errorDesc:
+          type: string
+    SectionsDTO:
+      type: object
+      properties:
+        label:
+          type: string
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttributeDTO'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectionsDTO'
+        id:
+          type: string
+    ValidationDTO:
+      type: object
+      properties:
+        validationType:
+          type: string
+        valid:
+          type: boolean
+        dpi:
+          type: integer
+          format: int32
+        pages:
+          type: integer
+          format: int32
+        rejectReason:
+          type: string
+        mobile:
+          type: boolean
+        suspicious_rate:
+          type: number
+          format: float
+    Feedback:
+      type: object
+      properties:
+        comment:
+          type: string
+          description: Content of the feedback
+          example: This datapoint is bad because it was misspelled
+        creation:
+          type: string
+          description: Timestamp when the feedback was submitted
+          format: date-time
+        userIdentifier:
+          type: string
+          description: Username of the user that submitted the feedback
+          example: someuser
+      description: User feedbacks about a datapoint
+    Origin:
+      type: object
+      properties:
+        originType:
+          type: string
+          description: 'It represents the information about the method of extraction:
+            "manual", "inferred","explicit", ...'
+          example: Explicit
+          enum:
+          - MANUAL
+          - INFERRED
+          - EXPLICIT
+        details:
+          type: string
+          description: Details about the origin
+          example: Faculty 1 is applied to one person because the resource is about
+            the constitution of a company and this person is the administrator
+      description: Information about the origin of the datapoint
+    Pageable:
+      type: object
+      properties:
+        sort:
+          $ref: '#/components/schemas/Sort'
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        offset:
+          type: integer
+          format: int64
+    Sort:
+      type: object
+      properties:
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+        empty:
+          type: boolean
+    Subtype:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        encrypt:
+          type: string
+    Country:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        encrypt:
+          type: string
+    Document:
+      required:
+      - contractDPI
+      - contractNoise
+      - minAccuracyThreshold
+      - minConfidenceExplicitThreshold
+      - minConfidenceInferredThreshold
+      - subtype
+      - supervised
+      - type
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        encrypt:
+          type: string
+        minAccuracyThreshold:
+          maximum: 1
+          exclusiveMaximum: false
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
+          format: float
+        supervised:
+          type: boolean
+        minConfidenceExplicitThreshold:
+          maximum: 1
+          exclusiveMaximum: false
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
+          format: float
+        minConfidenceInferredThreshold:
+          maximum: 1
+          exclusiveMaximum: false
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
+          format: float
+        contractDPI:
+          type: integer
+          format: int32
+        contractNoise:
+          maximum: 1
+          exclusiveMaximum: false
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
+          format: float
+        services:
+          $ref: '#/components/schemas/Services'
+        country:
+          $ref: '#/components/schemas/Country'
+        language:
+          $ref: '#/components/schemas/Language'
+        type:
+          $ref: '#/components/schemas/Type'
+        subtype:
+          $ref: '#/components/schemas/Subtype'
+        maskType:
+          type: string
+        alias:
+          type: string
+        label:
+          type: string
+    Language:
+      required:
+      - code
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        code:
+          type: string
+        encrypt:
+          type: string
+    Type:
+      required:
+      - name
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        encrypt:
+          type: string
+    Services:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        path:
+          type: string
+        encrypt:
+          type: string
+        hasExternalServices:
+          type: boolean
+    ErrorVM:
+      type: object
+      properties:
+        message:
+          type: string
+        description:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorVM'
+    FieldErrorVM:
+      type: object
+      properties:
+        objectName:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+    CallbackResult:
+      type: object
+      properties:
+        response:
+          type: string
+          description: The callback response from the external receiver service. Can
+            be html, json, xml, etc...
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
